@@ -1,0 +1,52 @@
+# Dependencies
+**/node_modules/
+**/vendor/
+**/venv/
+telegram-bridge/venv/
+backend/vendor/
+frontend/node_modules/
+frontend/dist/
+
+# Environments & Keys
+.env
+.env.backup
+.env.production
+backend/.env
+backend/.env.backup
+*.key
+
+# Databases & Cache
+*.sqlite
+*.sqlite-journal
+backend/database/*.sqlite
+backend/bootstrap/cache/*.php
+
+# Storage & Logs
+backend/storage/*.key
+backend/storage/logs/*.log
+backend/storage/framework/cache/data/*
+backend/storage/framework/sessions/*
+backend/storage/framework/views/*
+backend/storage/app/public/*
+!backend/storage/app/public/.gitignore
+
+# Telegram Sessions
+*.session
+*.session-journal
+telegram-bridge/*.session
+telegram-bridge/*.session-journal
+
+# OS & IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# npm / test
+.npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.phpunit.result.cache
