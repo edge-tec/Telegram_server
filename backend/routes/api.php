@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AdminAutoReplyController;
 use App\Http\Controllers\Api\AiAssistantController;
 use App\Http\Controllers\Api\AnalyticsController;
 use App\Http\Controllers\Api\AuthController;
@@ -102,6 +103,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/sequential-followups/{id}', [SequentialFollowupController::class, 'update']);
     Route::delete('/sequential-followups/{id}', [SequentialFollowupController::class, 'destroy']);
     Route::post('/sequential-followups/{id}/toggle', [SequentialFollowupController::class, 'toggle']);
+
+    // Admin Auto Reply & Advanced Composer (Enterprise Control)
+    Route::get('/admin/auto-replies', [AdminAutoReplyController::class, 'index']);
+    Route::post('/admin/auto-replies', [AdminAutoReplyController::class, 'store']);
+    Route::post('/admin/auto-replies/upload-media', [AdminAutoReplyController::class, 'uploadMedia']);
+    Route::get('/admin/auto-replies/{id}', [AdminAutoReplyController::class, 'show']);
+    Route::put('/admin/auto-replies/{id}', [AdminAutoReplyController::class, 'update']);
+    Route::delete('/admin/auto-replies/{id}', [AdminAutoReplyController::class, 'destroy']);
+    Route::post('/admin/auto-replies/{id}/toggle', [AdminAutoReplyController::class, 'toggle']);
+    Route::post('/admin/auto-replies/{id}/duplicate', [AdminAutoReplyController::class, 'duplicate']);
 
     // Message Templates
     Route::apiResource('templates', TemplateController::class);

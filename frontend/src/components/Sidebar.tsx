@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   Zap,
+  Shield,
   Send,
   FileText,
   FolderOpen,
@@ -27,6 +28,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab, conne
   // Telegram Automation Menu items
   const automationItems = [
     { id: 'auto_replies', label: 'Auto Reply', icon: Zap, badge: 'v3.0', badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
+    { id: 'admin_auto_replies', label: 'Admin Auto Reply', icon: Shield, badge: 'Admin', badgeColor: 'bg-purple-50 text-purple-700 border-purple-200' },
     { id: 'campaigns', label: 'Follow-Up Campaigns', icon: Send },
     { id: 'templates', label: 'Message Templates', icon: FileText },
     { id: 'media', label: 'Media Library', icon: FolderOpen },

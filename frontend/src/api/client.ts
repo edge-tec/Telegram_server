@@ -350,3 +350,75 @@ export interface SequentialFollowupQueueItem {
     telegramUser?: { first_name?: string; username?: string; telegram_id: string };
   };
 }
+
+export interface AdminAutoReplyMediaItem {
+  id?: string;
+  media_library_id?: string;
+  media_type: 'photo' | 'video' | 'gif' | 'document' | 'audio' | 'voice';
+  file_name?: string;
+  file_path?: string;
+  file_url?: string;
+  mime_type?: string;
+  file_size?: number;
+  caption?: string;
+  order_index?: number;
+}
+
+export interface AdminAutoReplyLinkItem {
+  id?: string;
+  link_type: 'inline_url' | 'raw_url' | 'telegram_channel' | 'telegram_user';
+  label?: string;
+  url: string;
+  order_index?: number;
+}
+
+export interface AdminAutoReplyButtonItem {
+  id?: string;
+  row_index: number;
+  col_index: number;
+  label: string;
+  button_type: 'url' | 'telegram_url' | 'callback' | 'deep_link' | 'custom_action';
+  data: string;
+  order_index?: number;
+}
+
+export interface AdminAutoReplyStepItem {
+  id?: string;
+  step_number: number;
+  step_name?: string;
+  delay_value: number;
+  delay_unit: 'seconds' | 'minutes' | 'hours' | 'days';
+  message_format: 'markdown' | 'html' | 'rich';
+  message_text: string;
+  is_active: boolean;
+  media?: AdminAutoReplyMediaItem[];
+  links?: AdminAutoReplyLinkItem[];
+  buttons?: AdminAutoReplyButtonItem[];
+  sent_count?: number;
+}
+
+export interface AdminAutoReply {
+  id: string;
+  user_id?: string;
+  account_id?: string;
+  name: string;
+  description?: string;
+  status: 'active' | 'paused' | 'draft';
+  priority: number;
+  trigger_type: string;
+  trigger_keywords?: string[];
+  is_global: boolean;
+  force_auto_reply: boolean;
+  disable_user_editing: boolean;
+  lock_message: boolean;
+  lock_media: boolean;
+  lock_links: boolean;
+  visibility: 'admin_only' | 'all_users' | 'selected_users' | 'selected_plans';
+  target_plans?: string[];
+  target_users?: string[];
+  total_sent: number;
+  total_contacts: number;
+  steps: AdminAutoReplyStepItem[];
+  account?: TelegramAccount;
+  created_at?: string;
+}

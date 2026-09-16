@@ -4,6 +4,7 @@ import { TelegramAccount, apiClient } from './api/client';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { AutoReplyBuilder } from './pages/AutoReplyBuilder';
+import { AdminAutoReplyPage } from './pages/AdminAutoReply';
 import { VariablesManager } from './pages/VariablesManager';
 import { SchedulerCalendar } from './pages/SchedulerCalendar';
 import { AutomationSettings } from './pages/AutomationSettings';
@@ -65,6 +66,7 @@ export function AppContent() {
         <main className="flex-1 overflow-y-auto">
           {/* Telegram Automation Module v3.0 Pages */}
           {currentTab === 'auto_replies' && <AutoReplyBuilder accounts={accounts} />}
+          {currentTab === 'admin_auto_replies' && <AdminAutoReplyPage accounts={accounts} />}
           {currentTab === 'campaigns' && <Campaigns accounts={accounts} />}
           {currentTab === 'templates' && <Templates />}
           {currentTab === 'media' && <MediaLibrary />}
