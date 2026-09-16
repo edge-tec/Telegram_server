@@ -115,7 +115,7 @@ return new class extends Migration
             $table->foreignUuid('campaign_id')->constrained('followup_campaigns')->cascadeOnDelete();
             $table->unsignedInteger('step_order')->default(1);
             $table->integer('delay_seconds')->default(0);
-            $table->foreignUuid('template_id')->constrained('reply_templates')->cascadeOnDelete();
+            $table->foreignUuid('template_id')->nullable()->constrained('reply_templates')->nullOnDelete();
             $table->timestamps();
         });
 
@@ -125,7 +125,7 @@ return new class extends Migration
             $table->foreignUuid('conversation_id')->constrained('telegram_conversations')->cascadeOnDelete();
             $table->foreignUuid('campaign_id')->nullable()->constrained('followup_campaigns')->nullOnDelete();
             $table->foreignUuid('step_id')->nullable()->constrained('followup_steps')->nullOnDelete();
-            $table->foreignUuid('template_id')->constrained('reply_templates')->cascadeOnDelete();
+            $table->foreignUuid('template_id')->nullable()->constrained('reply_templates')->nullOnDelete();
             $table->timestamp('scheduled_at')->index();
             $table->string('status', 30)->default('pending')->index(); // pending, processing, sent, failed, cancelled
             $table->unsignedInteger('retry_count')->default(0);

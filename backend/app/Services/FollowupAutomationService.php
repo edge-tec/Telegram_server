@@ -23,7 +23,8 @@ class FollowupAutomationService
     public function __construct(
         protected KeywordMatcherService $keywordMatcher,
         protected VariableReplacerService $variableReplacer,
-        protected TelegramBridgeClient $bridgeClient
+        protected TelegramBridgeClient $bridgeClient,
+        protected SequentialAutoReplyService $sequentialAutoReplyService
     ) {}
 
     /**
@@ -98,7 +99,16 @@ class FollowupAutomationService
                 return ['status' => 'keyword_auto_replied', 'rule_id' => $matchedRule->id];
             }
 
-            // 7. Sequential Conversational Sequence (Step 1 -> Step 2 -> Step 3...)
+            // 6b. Sequential Auto Reply Engine (Step 1 -> Traffic Reply -> Step 2 -> Traffic Reply -> Step 3...)
+            $autoReplyResult = $this->sequentialAutoReplyService->processReply($conversation, $msgText);
+            if (in_array($autoReplyResult['status'] ?? '', ['step_sent_immediately', 'step_scheduled'])) {
+                return [
+                    'status' => 'sequential_auto_replied',
+                    'details' => $autoReplyResult,
+                ];
+            }
+
+            // 7. Sequential Conversational Sequence (Campaign Follow-up)
             return $this->advanceConversationCampaign($conversation, $account, $user);
         });
     }

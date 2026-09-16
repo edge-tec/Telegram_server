@@ -301,3 +301,52 @@ export interface TimelineEvent {
   message_type?: string;
   timestamp: string;
 }
+
+export interface SequentialAutoReplyStep {
+  id?: string;
+  sequence_id?: string;
+  step_number: number;
+  step_name?: string;
+  delay_value: number;
+  delay_unit: 'seconds' | 'minutes' | 'hours' | 'days';
+  message_text: string;
+  media_id?: string;
+  media_url?: string;
+  media_type?: string;
+  links?: Array<{ label: string; url: string }>;
+  is_active: boolean;
+  sent_count?: number;
+}
+
+export interface SequentialAutoReplySequence {
+  id: string;
+  account_id?: string | null;
+  name: string;
+  description?: string;
+  status: 'active' | 'paused' | 'draft';
+  total_contacts: number;
+  steps: SequentialAutoReplyStep[];
+  account?: TelegramAccount;
+  created_at?: string;
+}
+
+export interface SequentialFollowupQueueItem {
+  id: string;
+  campaign_id: string;
+  conversation_id: string;
+  telegram_user_id: string;
+  step_id: string;
+  step_order: number;
+  scheduled_at: string;
+  sent_at?: string;
+  status: 'pending' | 'sent' | 'failed' | 'cancelled';
+  retry_count: number;
+  error_message?: string;
+  campaign?: { id: string; name: string };
+  step?: { id: string; step_order: number; message_text?: string };
+  conversation?: {
+    id: string;
+    telegram_user_id?: string;
+    telegramUser?: { first_name?: string; username?: string; telegram_id: string };
+  };
+}

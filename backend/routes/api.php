@@ -11,6 +11,8 @@ use App\Http\Controllers\Api\LogController;
 use App\Http\Controllers\Api\MediaController;
 use App\Http\Controllers\Api\RuleController;
 use App\Http\Controllers\Api\SchedulerController;
+use App\Http\Controllers\Api\SequentialAutoReplyController;
+use App\Http\Controllers\Api\SequentialFollowupController;
 use App\Http\Controllers\Api\SettingsController;
 use App\Http\Controllers\Api\TelegramAccountController;
 use App\Http\Controllers\Api\TemplateController;
@@ -75,6 +77,31 @@ Route::middleware('auth:sanctum')->group(function () {
     // Follow-up Campaigns & Sequences
     Route::apiResource('campaigns', CampaignController::class);
     Route::post('/campaigns/{id}/toggle', [CampaignController::class, 'toggleStatus']);
+
+    // Sequential Auto Reply Engine
+    Route::get('/sequential-auto-replies', [SequentialAutoReplyController::class, 'index']);
+    Route::post('/sequential-auto-replies', [SequentialAutoReplyController::class, 'store']);
+    Route::get('/sequential-auto-replies/{id}', [SequentialAutoReplyController::class, 'show']);
+    Route::put('/sequential-auto-replies/{id}', [SequentialAutoReplyController::class, 'update']);
+    Route::delete('/sequential-auto-replies/{id}', [SequentialAutoReplyController::class, 'destroy']);
+    Route::post('/sequential-auto-replies/{id}/toggle', [SequentialAutoReplyController::class, 'toggle']);
+    Route::post('/sequential-auto-replies/{id}/duplicate', [SequentialAutoReplyController::class, 'duplicate']);
+    Route::post('/sequential-auto-replies/{id}/reorder', [SequentialAutoReplyController::class, 'reorderSteps']);
+    Route::post('/sequential-auto-replies/{id}/steps', [SequentialAutoReplyController::class, 'addStep']);
+    Route::put('/sequential-auto-replies/steps/{stepId}', [SequentialAutoReplyController::class, 'updateStep']);
+    Route::delete('/sequential-auto-replies/steps/{stepId}', [SequentialAutoReplyController::class, 'deleteStep']);
+
+    // Sequential Follow-Up Automation Engine & Queue
+    Route::get('/sequential-followups', [SequentialFollowupController::class, 'index']);
+    Route::post('/sequential-followups', [SequentialFollowupController::class, 'store']);
+    Route::get('/sequential-followups/queue/items', [SequentialFollowupController::class, 'queue']);
+    Route::post('/sequential-followups/queue/process-now', [SequentialFollowupController::class, 'processQueueNow']);
+    Route::post('/sequential-followups/queue/{id}/retry', [SequentialFollowupController::class, 'retryQueueItem']);
+    Route::post('/sequential-followups/queue/{id}/cancel', [SequentialFollowupController::class, 'cancelQueueItem']);
+    Route::get('/sequential-followups/{id}', [SequentialFollowupController::class, 'show']);
+    Route::put('/sequential-followups/{id}', [SequentialFollowupController::class, 'update']);
+    Route::delete('/sequential-followups/{id}', [SequentialFollowupController::class, 'destroy']);
+    Route::post('/sequential-followups/{id}/toggle', [SequentialFollowupController::class, 'toggle']);
 
     // Message Templates
     Route::apiResource('templates', TemplateController::class);
