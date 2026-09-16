@@ -3,14 +3,20 @@ set -e
 
 echo "=== TeleFlow Enterprise Frontend & Nginx Setup ==="
 
-# 1. Install Node.js, npm, and Nginx
-apt update
-apt install -y nodejs npm nginx
+# 1. Install Nginx only (Node.js is already installed via NodeSource)
+apt update && apt install -y nginx
 
-# 2. Build Frontend
+# 2. Build React Frontend
+echo "Building React frontend..."
 cd /var/www/Telegram_server/frontend
-npm install
-npm run build
+
+if command -v npm &> /dev/null; then
+    echo "Using host npm..."
+    npm install && npm run build
+else
+    echo "Using docker node to build..."
+    docker run --rm -v /var/www/Telegram_server/frontend:/app -w /app node:20-alpine sh -c "npm install && npm run build"
+fi
 
 # 3. Configure Nginx
 cat << 'EOF' > /etc/nginx/sites-available/default
