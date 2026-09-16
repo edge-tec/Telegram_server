@@ -25,6 +25,64 @@ class TelegramAccountController extends Controller
         return response()->json($accounts);
     }
 
+    public function getApiCredentials(): JsonResponse
+    {
+        list($apiId, $apiHash) = $this->resolveApiCredentials(null, null);
+
+        return response()->json([
+            'has_credentials' => !empty($apiId) && !empty($apiHash),
+            'api_id' => $apiId ? (string)$apiId : '',
+            'api_hash' => $apiHash ?: '',
+            'api_hash_masked' => $apiHash ? (substr($apiHash, 0, 4) . '••••••••' . substr($apiHash, -4)) : '',
+        ]);
+    }
+
+    public function saveApiCredentials(Request $request): JsonResponse
+    {
+        $request->validate([
+            'api_id' => 'required|numeric',
+            'api_hash' => 'required|string',
+        ]);
+
+        \App\Models\SystemSetting::set('default_telegram_api_id', (string)$request->api_id, 'Default Telegram API ID');
+        \App\Models\SystemSetting::set('default_telegram_api_hash', trim($request->api_hash), 'Default Telegram API Hash');
+
+        return response()->json([
+            'message' => 'Default Telegram API credentials saved successfully',
+            'has_credentials' => true,
+            'api_id' => (string)$request->api_id,
+        ]);
+    }
+
+    protected function resolveApiCredentials(?string $apiId, ?string $apiHash): array
+    {
+        $resolvedId = $apiId;
+        $resolvedHash = $apiHash;
+
+        if (empty($resolvedId) || empty($resolvedHash)) {
+            $sysId = \App\Models\SystemSetting::get('default_telegram_api_id');
+            $sysHash = \App\Models\SystemSetting::get('default_telegram_api_hash');
+
+            if ($sysId && $sysHash) {
+                $resolvedId = $sysId;
+                $resolvedHash = $sysHash;
+            } else {
+                $existing = TelegramAccount::whereNotNull('api_id_encrypted')->latest()->first();
+                if ($existing && $existing->api_id && $existing->api_hash) {
+                    $resolvedId = (string)$existing->api_id;
+                    $resolvedHash = $existing->api_hash;
+                    \App\Models\SystemSetting::set('default_telegram_api_id', $resolvedId);
+                    \App\Models\SystemSetting::set('default_telegram_api_hash', $resolvedHash);
+                }
+            }
+        } else {
+            \App\Models\SystemSetting::set('default_telegram_api_id', (string)$resolvedId);
+            \App\Models\SystemSetting::set('default_telegram_api_hash', trim($resolvedHash));
+        }
+
+        return [$resolvedId, $resolvedHash];
+    }
+
     public function requestOtp(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -39,16 +97,27 @@ class TelegramAccountController extends Controller
 
         $request->validate([
             'phone' => 'required|string',
-            'api_id' => 'required|numeric',
-            'api_hash' => 'required|string',
+            'api_id' => 'nullable|numeric',
+            'api_hash' => 'nullable|string',
         ]);
+
+        list($apiId, $apiHash) = $this->resolveApiCredentials($request->api_id, $request->api_hash);
+
+        if (empty($apiId) || empty($apiHash)) {
+            return response()->json([
+                'message' => 'API ID and API Hash are required for the initial setup. Please obtain them from my.telegram.org.'
+            ], 422);
+        }
 
         try {
             $result = $this->bridgeClient->sendLoginCode(
                 phone: trim($request->phone),
-                apiId: (int)$request->api_id,
-                apiHash: trim($request->api_hash)
+                apiId: (int)$apiId,
+                apiHash: trim($apiHash)
             );
+
+            $result['api_id'] = (int)$apiId;
+            $result['api_hash'] = trim($apiHash);
 
             return response()->json($result);
         } catch (Exception $e) {
@@ -71,12 +140,20 @@ class TelegramAccountController extends Controller
         $request->validate([
             'alias' => 'required|string|max:100',
             'phone' => 'required|string',
-            'api_id' => 'required|numeric',
-            'api_hash' => 'required|string',
+            'api_id' => 'nullable|numeric',
+            'api_hash' => 'nullable|string',
             'auth_id' => 'required|string',
             'code' => 'required|string',
             'password' => 'nullable|string',
         ]);
+
+        list($apiId, $apiHash) = $this->resolveApiCredentials($request->api_id, $request->api_hash);
+
+        if (empty($apiId) || empty($apiHash)) {
+            return response()->json([
+                'message' => 'Missing API ID or API Hash.'
+            ], 422);
+        }
 
         try {
             $authResult = $this->bridgeClient->verifyLoginCode(
@@ -94,8 +171,8 @@ class TelegramAccountController extends Controller
             $account->user_id = $request->user()?->id;
             $account->alias = $request->alias;
             $account->phone = trim($request->phone);
-            $account->api_id = (int)$request->api_id;
-            $account->api_hash = trim($request->api_hash);
+            $account->api_id = (int)$apiId;
+            $account->api_hash = trim($apiHash);
             $account->session_string = $authResult['session_string'];
             $account->telegram_id = (string)($authResult['telegram_id'] ?? '');
             $account->username = $authResult['username'] ?? '';

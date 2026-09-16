@@ -47,6 +47,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Telegram MTProto Accounts
     Route::get('/accounts', [TelegramAccountController::class, 'index']);
+    Route::get('/accounts/api-credentials', [TelegramAccountController::class, 'getApiCredentials']);
+    Route::post('/accounts/api-credentials', [TelegramAccountController::class, 'saveApiCredentials']);
     Route::post('/accounts/request-otp', [TelegramAccountController::class, 'requestOtp']);
     Route::post('/accounts/verify-otp', [TelegramAccountController::class, 'verifyOtp']);
     Route::post('/accounts/{id}/toggle-listener', [TelegramAccountController::class, 'toggleListener']);
